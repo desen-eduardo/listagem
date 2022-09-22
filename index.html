@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>html</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div class="container">
+		<div class="form-input">
+			<input type="text" id="item" placeholder="Digita seu item da lista">
+			<button type="button" class="btn btn-success" onclick="adicionarItem()">Adicionar</button>
+		</div>
+
+		<ul class="listagem"></ul>
+	</div>
+
+	<script>
+		let listaItem = [];
+		const listagem = document.querySelector('.listagem');
+		
+		function adicionarItem() {
+			let txt = document.querySelector('#item');
+			let objeto = {};
+
+			let today = new Date();
+			let id = today.getMilliseconds();
+
+			if (txt.value !== '') {
+				objeto.id = id;
+				objeto.listagem = txt.value;
+				objeto.complemento = false;
+								
+				txt.value = '';
+				txt.focus();
+			}
+
+			listaItem.push(objeto);
+
+			const result = listaItem.map((item)=> {
+				return `<li><span class="${item.complemento === true ? 'feito': ''}" 
+					data-id="${item.id}" onclick="marcaOuDesmarca(this)">${item.listagem}</span>
+					<button type="button" class="del" data-id="${item.id}" onclick="delItem(this)">x</button></li>`;
+			});
+
+				listagem.innerHTML = result; 
+				localStorage.setItem('listagem',JSON.stringify(listaItem));
+		}
+
+		function marcaOuDesmarca(obj) {
+			let id = obj.getAttribute('data-id');
+
+			const result = listaItem.filter((item)=>{
+				if (item.id == id) {
+					(!obj.classList.contains('feito'))? obj.setAttribute('class','feito') 
+					:obj.classList.remove('feito'); 
+					item.complemento = !item.complemento;
+				}
+
+				return item;
+			});
+
+			listaItem = result;
+			localStorage.setItem('listagem',JSON.stringify(listaItem));
+		}
+
+		function delItem(obj) {
+			let id = obj.getAttribute('data-id');
+
+			const result = listaItem.filter((item)=>{
+				if (item.id != id) {
+					return item;
+				}
+			})
+
+			listaItem = result;
+
+			const lista = result.map((item)=> {
+				return `<li><span class="${item.complemento === true ? 'feito': ''}" 
+					data-id="${item.id}" onclick="marcaOuDesmarca(this)">${item.listagem}</span>
+					<button type="button" class="del" data-id="${item.id}" onclick="delItem(this)">x</button></li>`;
+			});
+			localStorage.setItem('listagem',JSON.stringify(listaItem));
+			listagem.innerHTML = lista; 
+		}
+
+		function dataLista() {
+			listaItem = JSON.parse(localStorage.getItem('listagem'));
+
+			const lista = listaItem.map((item)=> {
+				return `<li><span class="${item.complemento === true ? 'feito': ''}" 
+					data-id="${item.id}" onclick="marcaOuDesmarca(this)">${item.listagem}</span>
+					<button type="button" class="del" data-id="${item.id}" onclick="delItem(this)">x</button></li>`;
+			});
+
+			listagem.innerHTML = lista; 
+
+		}
+
+		const eventKeyUp = document.querySelector('#item');
+		eventKeyUp.addEventListener('keyup',(e)=> {
+			if (e.keyCode == 13) {
+				adicionarItem();
+			}
+		});
+
+		dataLista();
+	</script>
+</body>
+</html>
